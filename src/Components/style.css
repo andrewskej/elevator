@@ -1,0 +1,11 @@
+.buttonBox {
+    justify-content:space-between; 
+    font-size:25px; 
+    color:yellow; 
+    border:solid 1px black; 
+    padding:5px;
+}
+
+.upDownBox{
+    display:flex;
+}
