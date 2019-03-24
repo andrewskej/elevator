@@ -22,7 +22,7 @@ class ElevatorProvider extends Component {
         },
 
         levelCalculator : (calledFrom, direction) => {
-            console.log('calledFrom, direction: ', calledFrom, direction);
+            // console.log('calledFrom, direction: ', calledFrom, direction);
             const levels = [1,2,3,4,5,6,7,8,9]
             const positions = [4,14,24,34,44,54,64,74,84]
             const targetPos = positions[levels.indexOf(Number(calledFrom))]
@@ -31,10 +31,17 @@ class ElevatorProvider extends Component {
 
         findClosest : (targetPos, direction) => {
             const {car1Pos,car2Pos,car3Pos} = this.state
-            console.log('t', targetPos)
-            console.log('d', direction)
+            console.log('target:', targetPos)
+            console.log('up/down:', direction)
             const diff = [car1Pos,car2Pos,car3Pos].map(el => targetPos - el)
-            console.log(diff)
+            const smallest = diff.reduce((prev,cur)=>{
+                return prev > cur ? cur : prev 
+            })
+            const moveThis = Number(diff.indexOf(smallest))+1
+
+            //up or down?, move how many floors?
+            this.actions.moveOneUp('car'+moveThis+'Pos')
+            
         },
 
 
