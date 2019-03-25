@@ -27,6 +27,7 @@ class ElevatorProvider extends Component {
             const positions = [4,14,24,34,44,54,64,74,84]
             const targetPos = positions[levels.indexOf(Number(calledFrom))]
             const selectedCar = this.actions.findClosest(targetPos, direction)
+            console.log('seletedCar:',selectedCar)
             const howManyFloors = (targetPos - this.state[selectedCar])/10
 
             this.actions.moveCar(selectedCar,direction,howManyFloors)
@@ -36,10 +37,13 @@ class ElevatorProvider extends Component {
             const {car1Pos,car2Pos,car3Pos} = this.state
             console.log('target:', targetPos)
             console.log('up/down:', direction)
+
             const diff = [car1Pos,car2Pos,car3Pos].map(el => targetPos - el)
-            const smallest = diff.reduce((prev,cur)=>{
+            const smallest = diff.reduce((prev,cur)=>{  //이거 로직 다시..
                 return prev > cur ? cur : prev 
             })
+            console.log('diff:', diff) 
+            console.log('smallest',smallest)
             const moveThis = Number(diff.indexOf(smallest))+1
 
             //up or down?, move how many floors?
@@ -67,7 +71,8 @@ class ElevatorProvider extends Component {
         moveCar:(target,direction,howManyFloors) => {
             console.log(target, howManyFloors, direction)
 
-            let dir = direction ==='u' ? 10 : (-10)
+            // let dir = direction ==='u' ? 10 : (-10)
+            let dir = 10;
             for(let i=0; i<howManyFloors;i++){
                 setTimeout(()=>{
                     this.setState({
