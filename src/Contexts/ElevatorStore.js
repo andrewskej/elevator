@@ -30,7 +30,7 @@ class ElevatorProvider extends Component {
             console.log('seletedCar:',selectedCar)
             const howManyFloors = (targetPos - this.state[selectedCar])/10
 
-            this.actions.moveCar(selectedCar,direction,howManyFloors)
+            this.actions.moveCar(selectedCar,direction,targetPos,howManyFloors)
         },
 
         findClosest : (targetPos, direction) => {
@@ -68,16 +68,17 @@ class ElevatorProvider extends Component {
         // },
 
         //something's fuckin wrong
-        moveCar:(target,direction,howManyFloors) => {
-            console.log(target, howManyFloors, direction)
-
-            // let dir = direction ==='u' ? 10 : (-10)
-            let dir = 10;
-            for(let i=0; i<howManyFloors;i++){
+        moveCar:(selectedCar,direction,targetPos, howManyFloors) => {
+            console.log(selectedCar, howManyFloors, direction, targetPos)
+            // 목적지의 좌표값이 더 크면 + 아니면 - 
+            let dir =this.state[selectedCar] < targetPos ? 10 : (-10)
+          
+            console.log(dir)
+            for(let i=0; i<Math.abs(howManyFloors);i++){
                 setTimeout(()=>{
                     this.setState({
-                        [target]:this.state[target] + dir
-                    })
+                        [selectedCar]:this.state[selectedCar] + dir 
+                    },()=>console.log('moveresult:',this.state[selectedCar]))
                 },1500)
             }
         }
