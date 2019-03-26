@@ -9,7 +9,7 @@ export default class Passenger extends Component {
 
     
 
-    componentDidUpdate(){
+    componentDidMount(){
         const positions =[2,3,4,5,6,7,8,9]
 
         this.setState({
