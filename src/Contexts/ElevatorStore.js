@@ -39,13 +39,13 @@ class ElevatorProvider extends Component {
             console.log('up/down:', direction)
 
             const diff = [car1Pos,car2Pos,car3Pos].map(el => targetPos - el)
-            const smallest = diff.reduce((prev,cur)=>{  //이거 로직 다시..
-                return prev > cur ? cur : prev 
+            const smallest = diff.reduce((prev,cur)=>{  
+                return Math.abs(prev) > Math.abs(cur) ? cur : prev 
             })
             console.log('diff:', diff) 
             console.log('smallest',smallest)
             const moveThis = Number(diff.indexOf(smallest))+1
-
+            //올라가고 내려가는거 재정의 필요!
             //up or down?, move how many floors?
             let selected = `car${moveThis}Pos`
             return selected
