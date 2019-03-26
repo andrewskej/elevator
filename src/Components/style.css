@@ -9,3 +9,13 @@
 .upDownBox{
     display:flex;
 }
+
+.passenger{
+    margin-right:-70px;
+
+}
+
+.passenger img{
+    width:30px;
+    height:30px;
+}

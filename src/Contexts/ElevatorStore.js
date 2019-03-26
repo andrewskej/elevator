@@ -45,7 +45,6 @@ class ElevatorProvider extends Component {
             console.log('diff:', diff) 
             console.log('smallest',smallest)
             const moveThis = Number(diff.indexOf(smallest))+1
-            //올라가고 내려가는거 재정의 필요!
             //up or down?, move how many floors?
             let selected = `car${moveThis}Pos`
             return selected
@@ -53,26 +52,10 @@ class ElevatorProvider extends Component {
         },
 
 
-
-        //현재 위치에 10% 더하기
-        // moveOneUp:(target) => {
-        //     this.setState({
-        //         [target]:this.state[target] + 10
-        //     })
-        // },
-
-        // moveOneDown:(target)=>{
-        //     this.setState({
-        //         [target]:this.state[target] - 10
-        //     })
-        // },
-
-        //something's fuckin wrong
         moveCar:(selectedCar,direction,targetPos, howManyFloors) => {
             console.log(selectedCar, howManyFloors, direction, targetPos)
             // 목적지의 좌표값이 더 크면 + 아니면 - 
             let dir =this.state[selectedCar] < targetPos ? 10 : (-10)
-          
             console.log(dir)
             for(let i=0; i<Math.abs(howManyFloors);i++){
                 setTimeout(()=>{
@@ -86,9 +69,7 @@ class ElevatorProvider extends Component {
     }
 
     componentDidMount(){
-        // setInterval(()=> {
-        //     this.actions.moveOneUp('car1Pos')
-        // },1000)
+    
     }
 
     render() {
