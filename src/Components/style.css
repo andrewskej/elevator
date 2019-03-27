@@ -12,10 +12,12 @@
 
 .passenger{
     margin-right:-70px;
-
+    height:300px;
+    position:relative;
 }
 
 .passenger img{
     width:30px;
     height:30px;
+    position:absolute;
 }

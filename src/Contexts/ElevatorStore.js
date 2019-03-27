@@ -10,11 +10,40 @@ class ElevatorProvider extends Component {
 
         calledFrom:'',
         direction:'',
+
+        destination:'',
+        passengerX:'-25',
+        passengerY:'0',
     }
 
     actions = {
 
+
+        randomPassenger:()=>{
+            // const positions =[1,2,3,4,5,6,7,8,9]
+            const positions = [0,11,22,33,44,55,66,77,88]
+            const begin = positions[Math.floor(Math.random()*positions.length)]
+            const end = positions.splice(begin)[0] //랜덤 다시 찾기..피곤해 오늘은..
+            console.log('begin:',begin)
+            console.log('end', end)
+            this.setState({
+                passengerY: begin,  //저중에서 랜덤으로 한층 뽑아서 시작
+                destination: end //이것도 랜덤(곂치지 않게)
+            })
+        },
+
+        //같은층에 온 엘리베이터에 탑승, 목적지로 이동..
+        //left -115px, -242px -366px   -25px initial
+        //bottom 0% 부터 11%씩
+
+        getInElevator:()=>{
+
+        },
+
+
+
         buttonPress: (button) => {
+            console.log('button:',button)
             const [calledFrom, direction] = button.split('-')
             this.setState({
                 calledFrom, direction
@@ -53,10 +82,10 @@ class ElevatorProvider extends Component {
 
 
         moveCar:(selectedCar,direction,targetPos, howManyFloors) => {
-            console.log(selectedCar, howManyFloors, direction, targetPos)
+            // console.log(selectedCar, howManyFloors, direction, targetPos)
             // 목적지의 좌표값이 더 크면 + 아니면 - 
             let dir =this.state[selectedCar] < targetPos ? 10 : (-10)
-            console.log(dir)
+            // console.log(dir)
             for(let i=0; i<Math.abs(howManyFloors);i++){
                 setTimeout(()=>{
                     this.setState({
@@ -69,7 +98,7 @@ class ElevatorProvider extends Component {
     }
 
     componentDidMount(){
-    
+        this.actions.randomPassenger()
     }
 
     render() {
