@@ -1,4 +1,5 @@
 import React, { Component, createContext } from 'react'
+import Passenger from '../Components/Passenger';
 const Context = createContext();
 const {Provider, Consumer:ElevatorConsumer} = Context;
 
@@ -10,37 +11,10 @@ class ElevatorProvider extends Component {
 
         calledFrom:'',
         direction:'',
-
         destination:'',
-        passengerX:'-25',
-        passengerY:'0',
     }
 
     actions = {
-
-
-        randomPassenger:()=>{
-            // const positions =[1,2,3,4,5,6,7,8,9]
-            const positions = [0,11,22,33,44,55,66,77,88]
-            const begin = positions[Math.floor(Math.random()*positions.length)]
-            const end = positions.splice(begin)[0] //랜덤 다시 찾기..피곤해 오늘은..
-            console.log('begin:',begin)
-            console.log('end', end)
-            this.setState({
-                passengerY: begin,  //저중에서 랜덤으로 한층 뽑아서 시작
-                destination: end //이것도 랜덤(곂치지 않게)
-            })
-        },
-
-        //같은층에 온 엘리베이터에 탑승, 목적지로 이동..
-        //left -115px, -242px -366px   -25px initial
-        //bottom 0% 부터 11%씩
-
-        getInElevator:()=>{
-
-        },
-
-
 
         buttonPress: (button) => {
             console.log('button:',button)
@@ -51,12 +25,12 @@ class ElevatorProvider extends Component {
         },
 
         levelCalculator : (calledFrom, direction) => {
-            // console.log('calledFrom, direction: ', calledFrom, direction);
+            console.log('calledFrom, direction: ', calledFrom, direction);
             const levels = [1,2,3,4,5,6,7,8,9]
             const positions = [4,14,24,34,44,54,64,74,84]
             const targetPos = positions[levels.indexOf(Number(calledFrom))]
             const selectedCar = this.actions.findClosest(targetPos, direction)
-            console.log('seletedCar:',selectedCar)
+            // console.log('seletedCar:',selectedCar)
             const howManyFloors = (targetPos - this.state[selectedCar])/10
 
             this.actions.moveCar(selectedCar,direction,targetPos,howManyFloors)
@@ -64,15 +38,15 @@ class ElevatorProvider extends Component {
 
         findClosest : (targetPos, direction) => {
             const {car1Pos,car2Pos,car3Pos} = this.state
-            console.log('target:', targetPos)
-            console.log('up/down:', direction)
+            // console.log('target:', targetPos)
+            // console.log('up/down:', direction)
 
             const diff = [car1Pos,car2Pos,car3Pos].map(el => targetPos - el)
             const smallest = diff.reduce((prev,cur)=>{  
                 return Math.abs(prev) > Math.abs(cur) ? cur : prev 
             })
-            console.log('diff:', diff) 
-            console.log('smallest',smallest)
+            // console.log('diff:', diff) 
+            // console.log('smallest',smallest)
             const moveThis = Number(diff.indexOf(smallest))+1
             //up or down?, move how many floors?
             let selected = `car${moveThis}Pos`
@@ -90,7 +64,9 @@ class ElevatorProvider extends Component {
                 setTimeout(()=>{
                     this.setState({
                         [selectedCar]:this.state[selectedCar] + dir 
-                    },()=>console.log('moveresult:',this.state[selectedCar]))
+                    },
+                        // ()=>console.log('moveresult:',this.state[selectedCar])
+                        )
                 },1500)
             }
         }
@@ -98,7 +74,38 @@ class ElevatorProvider extends Component {
     }
 
     componentDidMount(){
-        this.actions.randomPassenger()
+        console.log('store mounted')
+        const man = new Passenger();
+        const currentFloor = man.randomAppear()
+   
+        setTimeout(()=>{
+            // const destPos = man.whereToGo()
+            // const destFloor = Number(destPos) / 11
+            // this.setState({destination:destPos})
+
+            // 사람이 서있는 위치까지 엘베가 와야돼
+            // let currentFloor = (Number(calledFrom)/11)
+            console.log('currentFloor', currentFloor)
+            let button = currentFloor + '-' + 'u'
+            this.actions.buttonPress(button)
+        },100)
+
+
+        // man.getIn()
+        // man.getOut()
+        // man.saybye()
+        //random으로 생성
+        //floor 선택
+        //탑승
+        //이동
+        //내리고 사라짐
+        //반복
+
+    }
+
+
+    componentDidUpdate(){
+        console.log(this.state)
     }
 
     render() {
