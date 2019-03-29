@@ -10,8 +10,11 @@ class ElevatorProvider extends Component {
         car3Pos:24,
 
         calledFrom:'',
+        selectedCar:'',
         direction:'',
         destination:'',
+        getIn:'',
+
     }
 
     actions = {
@@ -55,9 +58,12 @@ class ElevatorProvider extends Component {
         },
 
 
-        moveCar:(selectedCar,direction,targetPos, howManyFloors) => {
+        moveCar:(selectedCar,direction,targetPos,howManyFloors) => {
             // console.log(selectedCar, howManyFloors, direction, targetPos)
             // 목적지의 좌표값이 더 크면 + 아니면 - 
+            this.setState({
+                selectedCar
+            })
             let dir =this.state[selectedCar] < targetPos ? 10 : (-10)
             // console.log(dir)
             for(let i=0; i<Math.abs(howManyFloors);i++){
@@ -69,7 +75,11 @@ class ElevatorProvider extends Component {
                         )
                 },1500)
             }
-        }
+        },
+
+        passengerAction : () => {
+         
+        },
 
     }
 
@@ -77,21 +87,28 @@ class ElevatorProvider extends Component {
         console.log('store mounted')
         const man = new Passenger();
         const currentFloor = man.randomAppear()
-   
+        //BALLGAME 참조해서 몇초마다 생성되게 바꾸기
+
         setTimeout(()=>{
             // const destPos = man.whereToGo()
             // const destFloor = Number(destPos) / 11
             // this.setState({destination:destPos})
 
             // 사람이 서있는 위치까지 엘베가 와야돼
-            // let currentFloor = (Number(calledFrom)/11)
-            console.log('currentFloor', currentFloor)
-            let button = currentFloor + '-' + 'u'
+            // console.log('currentFloor', currentFloor)
+            let direction = 'u' // needs condition with 'd'
+            let button = `${currentFloor}-${direction}`
             this.actions.buttonPress(button)
+
+
+            //엘베를 골라서 탑승 wip....
+            const {selectedCar} = this.state;  
+            man.getIn(selectedCar) 
         },100)
 
 
-        // man.getIn()
+
+        //elevator move
         // man.getOut()
         // man.saybye()
         //random으로 생성
@@ -105,7 +122,7 @@ class ElevatorProvider extends Component {
 
 
     componentDidUpdate(){
-        console.log(this.state)
+        // console.log(this.state)
     }
 
     render() {

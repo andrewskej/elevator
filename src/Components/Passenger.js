@@ -2,11 +2,6 @@ import React, { Component } from 'react'
 import { ElevatorConsumer } from '../Contexts/ElevatorStore';
 
 export default class Passenger extends Component {
-    state ={
-        passengerX:'-25',
-        passengerY:'',
-    }
-
 
     constructor(){
         super()
@@ -40,25 +35,46 @@ export default class Passenger extends Component {
         //left -115px, -242px -366px   -25px initial
         //bottom 0% 부터 11%씩
 
-    getIn = () => {
+    passengerX = '-25'
+
+    //wip
+    getIn = (which) => {  
         console.log('getIn')
+        // console.log('which',which)
+        switch(which){
+            case 'car1Pos': this.passengerX = '-366'
+            break;
+            case 'car2Pos': this.passengerX = '-242'
+            break;
+            case 'car3Pos': this.passengerX = '-115'
+            break;
+            default: this.passengerX = '-25'
+        }
+        // console.log('passengerX',this.passengerX)
+        setTimeout(()=>{  //이건 야매야...이렇게 말고...
+            document.querySelector('img').style.left = this.passengerX + 'px'
+        },3000)
     }
 
     getOut = () => {
         console.log('out')
+        document.querySelector('img').style.left = '-25px'
     }
         
     saybye = () => {
         console.log('bye')
     }
 
+    vanish = () =>{
+        
+    }
+
     render() {
-        const {passengerX, destination} = this.state;
         return (
             <ElevatorConsumer>
                 {({state, actions})=> (
                     <div className="passenger" >
-                        <img alt="man" style={{bottom: Number(state.calledFrom-1)*11 + '%', left:passengerX+'px'}}  src={require('../elvMan.png')}/>
+                        <img alt="man" style={{bottom: Number(state.calledFrom-1)*11 + '%', left: this.passengerX+'px', /*border:'solid 3px green'*/}}  src={require('../elvMan.png')}/>
                     </div>
                 )}
             </ElevatorConsumer>
