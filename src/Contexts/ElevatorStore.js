@@ -1,5 +1,4 @@
 import React, { Component, createContext } from 'react'
-import Passenger from '../Components/Passenger';
 const Context = createContext();
 const {Provider, Consumer:ElevatorConsumer} = Context;
 
@@ -15,6 +14,10 @@ class ElevatorProvider extends Component {
         destFloor:'',
         direction:'',
 
+        levels:[1,2,3,4,5,6,7,8,9],
+        manPositions:[0,11,22,33,44,55,66,77,88],
+        elPositions:[4,14,24,34,44,54,64,74,84],
+
         passengerX:'-25',
         passengerY:''
     }
@@ -29,16 +32,16 @@ class ElevatorProvider extends Component {
             }, () => this.actions.levelCalculator(calledFrom, direction))
         },
 
-        levelCalculator : (calledFrom, direction) => {
-            // console.log('calledFrom, direction: ', calledFrom, direction);
-            const levels = [1,2,3,4,5,6,7,8,9]
-            const positions = [4,14,24,34,44,54,64,74,84]
-            const targetPos = positions[levels.indexOf(Number(calledFrom))]
-            const selectedCar = this.actions.findClosest(targetPos, direction)
-            const howManyFloors = (targetPos - this.state[selectedCar])/10
 
-            this.actions.moveCar(selectedCar,direction,targetPos,howManyFloors)
+        levelCalculator : (calledFrom, direction) => {
+            const {levels, elPositions} = this.state
+            const targetPos = elPositions[levels.indexOf(Number(calledFrom))]
+            const selectedCar = this.actions.findClosest(targetPos, direction)
+            console.log('t',targetPos, 's', this.state[selectedCar])
+            const howManyFloors = (targetPos - this.state[selectedCar])/10
+            this.actions.moveCar(selectedCar,targetPos,howManyFloors)
         },
+
 
         findClosest : (targetPos, direction) => {
             const {car1Pos,car2Pos,car3Pos} = this.state
@@ -52,27 +55,28 @@ class ElevatorProvider extends Component {
         },
 
 
-        moveCar: async (selectedCar,direction,targetPos,howManyFloors) => {
+        moveCar: async (selectedCar,targetPos, howManyFloors) => {
             this.setState({
                 selectedCar
             })
-            // 목적지의 좌표값이 더 크면 + 아니면 - 
-            let dir =this.state[selectedCar] < targetPos ? 10 : (-10)
+
+            let updown = howManyFloors > 0 ? 'u' : 'd' 
+            const moveFloor = Math.abs(howManyFloors)
+            let elMove = moveFloor * 10
             for(let i=0; i<Math.abs(howManyFloors);i++){
                 const move = setInterval(()=>{
+                    if(this.state[selectedCar] === targetPos){
+                        clearInterval(move)
+                        console.log('arrived')
+                        this.actions.getIn(selectedCar) 
+                        return;
+                    };
                     this.setState({
-                        [selectedCar]:(this.state[selectedCar] + dir)
-                    },async ()=>{
-                        // console.log('a',this.state[selectedCar])
-                        // console.log('b',targetPos)
-                        if(this.state[selectedCar] === targetPos){
-                            console.log('arrived')
-                            await this.actions.getIn(selectedCar) 
-                            return;
-                        };
+                        [selectedCar]:updown==='u'? this.state[selectedCar] + elMove/moveFloor
+                                                  : this.state[selectedCar] - elMove/moveFloor
                     })
-                    clearInterval(move)
                 },500)
+                return;
             }
 
 
@@ -81,29 +85,28 @@ class ElevatorProvider extends Component {
 
         //passenger methods
         randomAppear : () => {
-            const positions = [11,22,33,44,55,66,77,88]
-            let beginPos = positions[Math.ceil(Math.random()*(positions.length-1))]
-            console.log('beginPos', beginPos)
+            const {manPositions} = this.state;
+            let beginPos = manPositions[Math.ceil(Math.random()*(manPositions.length-1))]
             const beginFloor = Number(beginPos/11) + 1
+            console.log('beginFloor', beginFloor)
             this.setState({
-                passengerY: beginPos,
+                passengerY: beginPos
             })
             return beginFloor //시작층
         },
 
         whereToGo : () =>{
-            const Manpositions = [0,11,22,33,44,55,66,77,88]
-            const Elpositions = [4,14,24,34,44,54,64,74,84]
-            const end =  Manpositions[Math.floor(Math.random()*Manpositions.length)]
-            const destinationFloorPosition =  Elpositions[Manpositions.indexOf(end)]
+            const {manPositions,elPositions} = this.state;
+            const end = manPositions[Math.floor(Math.random()*manPositions.length)]
+            const destinationFloorPosition = elPositions[manPositions.indexOf(end)]
             return destinationFloorPosition // 갈 층 리턴
         },
 
-        getIn : (which) => {  
+        getIn : (selectedCar) => {  
             console.log('getIn')
-            // console.log('which',which)
+            // console.log('selectedCar',selectedCar)
             let passengerX;
-            switch(which){
+            switch(selectedCar){
                 case 'car1Pos': passengerX = '-366'
                 break;
                 case 'car2Pos': passengerX = '-242'
@@ -118,17 +121,14 @@ class ElevatorProvider extends Component {
                 })
             },1000)
         }
+    }
 
-
-
-
-
+    componentDidUpdate(){
+        // console.log(this.state)
     }
 
     async componentDidMount (){
-        // const man = new Passenger();
         const currentFloor = this.actions.randomAppear()
-        //BALLGAME 참조해서 몇초마다 생성되게 바꾸기
 
         // 사람이 서있는 위치까지 엘베가 오고, 탑승까지..
         let direction = 'u' // needs condition with 'd'
@@ -136,29 +136,43 @@ class ElevatorProvider extends Component {
         await this.actions.buttonPress(button)
 
 
-        //목적지
+        //목적지 정하기
         const destPos = this.actions.whereToGo() 
         const destFloor = Math.floor(Number(destPos) / 11)
         this.setState({destFloor})
         console.log(`From level ${currentFloor} to level ${destFloor}`)
         let updown = currentFloor > destFloor ? 'd':'u' 
-        let moveDistance = Math.floor(Math.abs(currentFloor - destFloor))
-        // console.log('moveD', moveDistance)
-        // console.log('this.state.passengerX', this.state.passengerX)
-        
-        //엘베 이동(타이밍이 안맞네....)
-        // setTimeout(async ()=>{
-        //     await this.actions.moveCar(selectedCar,updown,destPos,moveDistance)
-        //     await this.setState({
-        //         passengerY:updown=== 'u' 
-        //             ? this.state.passengerY + (moveDistance*11) 
-        //             : this.state.passengerY - (moveDistance*11)
-        //     })
-        // },1500)
+        let moveFloor = Math.floor(Math.abs(currentFloor - destFloor))
+        const manMove = moveFloor * 11
+        const elveMove = moveFloor * 10
 
+        //엘베 이동
+        const checkIn = setInterval(()=>{
+            if(this.state.passengerX !== '-25'){
+                console.log(`moving ${updown}`)
+                const {selectedCar} = this.state;
+                clearInterval(checkIn)
+                for(let i=0; i<moveFloor; i++){
+                    const {elPositions} = this.state;
+                    const destPos = elPositions[this.state.destFloor]
+                    const movemove = setInterval(()=>{
+                        if(this.state[selectedCar] === destPos) {
+                            clearInterval(movemove)
+                            //getout here
+                        }
+                        this.setState({
+                            passengerY:updown === 'u'? this.state.passengerY + manMove/moveFloor : this.state.passengerY - manMove/moveFloor ,  
+                            [selectedCar]:updown === 'u'? this.state[selectedCar] + elveMove/moveFloor  : this.state[selectedCar] - elveMove/moveFloor
+                        })                
+                    },500)
+                    return;
+                }
+            }
 
+        },100)
 
     }
+
 
 
     render() {
