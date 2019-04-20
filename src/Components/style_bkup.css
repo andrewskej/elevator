@@ -1,0 +1,24 @@
+.buttonBox {
+    justify-content:space-between; 
+    font-size:25px; 
+    color:yellow; 
+    border:solid 1px black; 
+    padding:5px;
+}
+
+.upDownBox{
+    display:flex;
+}
+
+/* 왜 이렇게 했더라? */
+.passenger{
+    margin-right:-70px;
+    height:300px;
+    position:relative;
+}
+
+.passenger img{
+    width:30px;
+    height:30px;
+    position:absolute;
+}

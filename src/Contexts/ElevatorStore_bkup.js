@@ -4,11 +4,7 @@ const {Provider, Consumer:ElevatorConsumer} = Context;
 
 
 class ElevatorProvider extends Component {
-
     state = {
-
-        panelText:'WELCOME',
-
         positions:{
             man:[0,11,22,33,44,55,66,77,88],
             el:[4,14,24,34,44,54,64,74,84],
@@ -36,9 +32,12 @@ class ElevatorProvider extends Component {
         elPositions:[4,14,24,34,44,54,64,74,84],
         levels:[1,2,3,4,5,6,7,8,9],
         manPositions:[0,11,22,33,44,55,66,77,88],
+
     }
 
     
+    //엘베가 한층 올라와서 서야할때만 사라짐...!?
+    //CSS, 코드 리팩토링까지
 
     actions = {
 
@@ -58,7 +57,7 @@ class ElevatorProvider extends Component {
             const [car3Pos] = elevatorPos.splice(Math.floor(Math.random()*elevatorPos.length),1)
             this.setState({
                 car1Pos, car2Pos, car3Pos
-            })
+            },()=>console.log(this.state))
         },
 
         buttonPress: (button) => {
@@ -92,6 +91,7 @@ class ElevatorProvider extends Component {
             let updown = howManyFloors > 0 ? 'u' : 'd' 
             const moveFloor = Math.abs(howManyFloors)
             let elMove = moveFloor * 10
+            console.log('elMove: ', elMove);
 
             if(elMove===0){
                 this.actions.getIn(selectedCar);
@@ -101,8 +101,7 @@ class ElevatorProvider extends Component {
                     const move = setInterval(()=>{
                         if(this.state[selectedCar] === targetPos){
                             clearInterval(move)
-                            const panelText = `${selectedCar.slice(0,4)} arrived`
-                            this.setState({panelText})
+                            console.log('arrived')
                             this.actions.getIn(selectedCar)  
                             return;
                         };
@@ -124,13 +123,13 @@ class ElevatorProvider extends Component {
            const beginFloor = this.actions.positionConverter(beginPos, 'man', 'floors')
            const [endPos] = manPositions.splice(Math.floor(Math.random()*manPositions.length),1)
            const endFloor = this.actions.positionConverter(endPos, 'man', 'floors')
-           const panelText = `From ${beginFloor} to ${endFloor}`
-           this.setState({
+
+            this.setState({
                 passengerY: beginPos,
-                endFloor,
-                panelText
+                endFloor
             })
-            
+            console.log(`From level ${beginFloor} to level ${endFloor}`)
+    
             const passengerInfo = {beginFloor, endFloor}
             return passengerInfo;
         },
@@ -163,61 +162,58 @@ class ElevatorProvider extends Component {
 
         vanish: () => {
             setTimeout(()=> {
-                document.getElementsByClassName('passenger')[0].remove()
+                
             }, 200)
-        },
-
-
-        oneCycle: async () => {
-            this.actions.elevatorAppear()
-            const {beginFloor,endFloor} = this.actions.passengerAppear()
-            const updown = beginFloor > endFloor ? 'd':'u' 
-            const moveFloor = Math.abs(beginFloor - endFloor)
-            const button = `${beginFloor}-${updown}`
-            await this.actions.buttonPress(button)
-            const manMove = moveFloor * 11
-            const elveMove = moveFloor * 10
-    
-            //엘베 이동
-            const checkIn = setInterval(()=>{
-                if(this.state.passengerX !== '-25'){
-                    const panelText = `moving ${updown==='u' ?  'up': 'down'}`
-                    this.setState({
-                        panelText
-                    })
-                    const {selectedCar} = this.state;
-                    clearInterval(checkIn)
-    
-                    const {elPositions, endFloor} = this.state;
-                    const destPos = elPositions[endFloor-1] 
-                    for(let i=0; i<moveFloor; i++){
-                        const movemove = setInterval(()=>{
-                            this.setState({
-                                passengerY:updown === 'u'? this.state.passengerY + manMove/moveFloor : this.state.passengerY - manMove/moveFloor ,  
-                                [selectedCar]:updown === 'u'? this.state[selectedCar] + elveMove/moveFloor  : this.state[selectedCar] - elveMove/moveFloor
-                            })   
-    
-                            if(this.state[selectedCar] === destPos) {
-                                clearInterval(movemove)
-                                const panelText = `GOODBYE`
-                                this.setState({panelText})
-                                this.actions.getOut()
-                                setTimeout(()=>{ this.actions.vanish() },300)
-                            }
-                        },500)
-                        return;
-                    }
-                }
-            },100)
         }
-
     }
 
 
 
-    componentDidMount (){
-        this.actions.oneCycle()
+    async componentDidMount (){
+        this.actions.elevatorAppear()
+
+        //랜덤 층에서 시작점, 목적지 가지고 생성
+        const {beginFloor,endFloor} = this.actions.passengerAppear()
+
+        //버튼 지정, 엘베호출
+        const updown = beginFloor > endFloor ? 'd':'u' 
+        const moveFloor = Math.abs(beginFloor - endFloor)
+        const button = `${beginFloor}-${updown}`
+        await this.actions.buttonPress(button)
+
+        const manMove = moveFloor * 11
+        const elveMove = moveFloor * 10
+
+        //엘베 이동
+        const checkIn = setInterval(()=>{
+            if(this.state.passengerX !== '-25'){
+                console.log(`moving ${updown==='u' ?  'up': 'down'}`)
+                const {selectedCar} = this.state;
+                clearInterval(checkIn)
+
+                const {elPositions, endFloor} = this.state;
+                const destPos = elPositions[endFloor-1]  //엘베좌표[목적지 층]  이게 맞나?
+                for(let i=0; i<moveFloor; i++){
+                    const movemove = setInterval(()=>{
+                        this.setState({
+                            passengerY:updown === 'u'? this.state.passengerY + manMove/moveFloor : this.state.passengerY - manMove/moveFloor ,  
+                            [selectedCar]:updown === 'u'? this.state[selectedCar] + elveMove/moveFloor  : this.state[selectedCar] - elveMove/moveFloor
+                        })   
+
+                        if(this.state[selectedCar] === destPos) {
+                            clearInterval(movemove)
+                            console.log(`we're here.`)
+                            this.actions.getOut()
+                            setTimeout(()=>{ this.actions.vanish() },300)
+                        }
+                    },500)
+                    return;
+                }
+            }
+        },100)
+
     }
+
 
 
 

@@ -6,10 +6,9 @@ export default class Passenger extends Component {
     render() {
         return (
             <ElevatorConsumer>
-                {({state, actions})=> (
+                {({state})=> (
                     <div className="passenger" >
-                        <img alt="man" style={{bottom: state.passengerY + '%', left: state.passengerX+'px', /*border:'solid 3px green'*/}}  src={require('../elvMan.png')}/>
-
+                        <img alt="man" style={{bottom: state.passengerY + '%', left: state.passengerX+'px'}}  src={require('../elvMan.png')}/>
                     </div>
                 )}
             </ElevatorConsumer>
